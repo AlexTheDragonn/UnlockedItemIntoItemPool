@@ -12,8 +12,6 @@ namespace AlexTheDragon
         {
             On.RoR2.UserAchievementManager.GrantAchievement += (orig, self, achievementDef) =>  //This works on User unlocks, like via UnlockAchievement().
             {
-                Logger.LogMessage("User granting achievement: " + achievementDef.nameToken);
-
                 foreach (LocalUser user in LocalUserManager.readOnlyLocalUsersList)
                 {
                     GenericStaticEnumerable<AchievementDef, AchievementManager.Enumerator> allAchievementDefs = AchievementManager.allAchievementDefs;//get all the achievementdefs
