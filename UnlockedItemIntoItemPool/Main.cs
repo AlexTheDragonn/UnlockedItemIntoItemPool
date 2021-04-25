@@ -1,15 +1,19 @@
 ﻿using BepInEx;
 using RoR2;
+using UnityEngine;
+using UnityEngine.Networking;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace AlexTheDragon
 {
-    [BepInDependency("com.bepis.r2api")]
     [BepInPlugin("com.AlexTheDragon.UnlockedItemIntoItemPool", "Unlocked Item into Item Pool", "1.0.0")]
     public class UnlockedItemIntoItemPool : BaseUnityPlugin
     {
         public void Awake()
         {
+            commandCubePrefab = Resources.Load<GameObject>("Prefabs/NetworkedObjects/CommandCube");
+
             On.RoR2.UserAchievementManager.GrantAchievement += (orig, self, achievementDef) =>  //This works on User unlocks, like via UnlockAchievement().
             {
                 foreach (LocalUser user in LocalUserManager.readOnlyLocalUsersList)
@@ -61,6 +65,7 @@ namespace AlexTheDragon
                 Run.instance.availableItems.Add(ItemCatalog.FindItemIndex(unlockableRewardIdentifier)); //Add the item from this string into the available items
             }
             Run.instance.BuildDropTable(); //Makes it so that everything we added actually gets put into the game pool so we can get it on the next items, you can see it that old items do not have it with command, but hopefully that won't matter :]
+            UpdateDroppedCommandDroplets();
         }
         /// <summary>
         /// Add an item to the item pool, but uses a string instead of AchievementDefs.
@@ -84,6 +89,43 @@ namespace AlexTheDragon
                 }
             }
             Run.instance.BuildDropTable();
+            UpdateDroppedCommandDroplets();
+        }
+        private static GameObject commandCubePrefab;
+        /// <summary>
+        /// Destroys and rebuilds the dropped commmands so they have the updated item pool.
+        /// </summary>
+        public void UpdateDroppedCommandDroplets()
+        {
+            Dictionary<NetworkInstanceId, NetworkIdentity> destroyObjects = new Dictionary<NetworkInstanceId, NetworkIdentity>();
+            List<GameObject> spawnObjects = new List<GameObject>();
+            foreach (KeyValuePair<NetworkInstanceId, NetworkIdentity> a in NetworkServer.objects) //CommandCube(Clone)
+            {
+                if (a.Value.gameObject.name.StartsWith("CommandCube"))
+                {
+
+                    Logger.LogMessage(a.Value.gameObject.name);
+                    Transform tf = a.Value.gameObject.transform;
+
+                    PickupIndex pickupIndex = a.Value.gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex;
+
+                    GameObject gameObject = Object.Instantiate<GameObject>(commandCubePrefab, tf.position, tf.rotation);
+                    gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupIndex;
+                    gameObject.GetComponent<PickupPickerController>().SetOptionsFromPickupForCommandArtifact(pickupIndex);
+                    destroyObjects.Add(a.Key, a.Value);
+                    spawnObjects.Add(gameObject);
+                }
+            }
+            foreach (KeyValuePair<NetworkInstanceId, NetworkIdentity> a in destroyObjects)
+            {
+                NetworkServer.Destroy(a.Value.gameObject);
+            }
+            foreach (GameObject a in spawnObjects)
+            {
+                NetworkServer.Spawn(a);
+            }
         }
     }
+
+
 }

@@ -47,9 +47,6 @@
     <Reference Include="MonoMod.Utils">
       <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\RiskOfRain2\profiles\Default\BepInEx\core\MonoMod.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="R2API">
-      <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\RiskOfRain2\profiles\Default\BepInEx\plugins\tristanmcpherson-R2API\R2API\R2API.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>D:\Games\Steam\SteamApps\common\Risk of Rain 2\Risk of Rain 2_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
