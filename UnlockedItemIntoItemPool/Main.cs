@@ -12,7 +12,6 @@ namespace AlexTheDragon
     {
         public void Awake()
         {
-            commandCubePrefab = Resources.Load<GameObject>("Prefabs/NetworkedObjects/CommandCube");
 
             On.RoR2.UserAchievementManager.GrantAchievement += (orig, self, achievementDef) =>  //This works on User unlocks, like via UnlockAchievement().
             {
@@ -91,7 +90,7 @@ namespace AlexTheDragon
             Run.instance.BuildDropTable();
             UpdateDroppedCommandDroplets();
         }
-        private static GameObject commandCubePrefab;
+
         /// <summary>
         /// Updates the dropped commmand items so they have the updated item pool.
         /// </summary>
