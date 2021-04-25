@@ -93,37 +93,18 @@ namespace AlexTheDragon
         }
         private static GameObject commandCubePrefab;
         /// <summary>
-        /// Destroys and rebuilds the dropped commmands so they have the updated item pool.
+        /// Updates the dropped commmand items so they have the updated item pool.
         /// </summary>
         public void UpdateDroppedCommandDroplets()
         {
-            Dictionary<NetworkInstanceId, NetworkIdentity> destroyObjects = new Dictionary<NetworkInstanceId, NetworkIdentity>();
-            List<GameObject> spawnObjects = new List<GameObject>();
             foreach (KeyValuePair<NetworkInstanceId, NetworkIdentity> a in NetworkServer.objects) //CommandCube(Clone)
             {
                 if (a.Value.gameObject.name.StartsWith("CommandCube"))
                 {
-
-                    Logger.LogMessage(a.Value.gameObject.name);
-                    Transform tf = a.Value.gameObject.transform;
-
-                    PickupIndex pickupIndex = a.Value.gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex;
-
-                    GameObject gameObject = Object.Instantiate<GameObject>(commandCubePrefab, tf.position, tf.rotation);
-                    gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex = pickupIndex;
-                    gameObject.GetComponent<PickupPickerController>().SetOptionsFromPickupForCommandArtifact(pickupIndex);
-                    destroyObjects.Add(a.Key, a.Value);
-                    spawnObjects.Add(gameObject);
+                    a.Value.gameObject.GetComponent<PickupPickerController>().SetOptionsFromPickupForCommandArtifact(a.Value.gameObject.GetComponent<PickupIndexNetworker>().NetworkpickupIndex);
                 }
             }
-            foreach (KeyValuePair<NetworkInstanceId, NetworkIdentity> a in destroyObjects)
-            {
-                NetworkServer.Destroy(a.Value.gameObject);
-            }
-            foreach (GameObject a in spawnObjects)
-            {
-                NetworkServer.Spawn(a);
-            }
+
         }
     }
 
