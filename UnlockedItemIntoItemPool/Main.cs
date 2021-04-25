@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using RoR2;
-using UnityEngine;
 using UnityEngine.Networking;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -22,7 +21,7 @@ namespace AlexTheDragon
                     {
                         if (userAchievDef == achievementDef) //did we actually get this achievement?
                         {
-                            AddItemFromAchievement(achievementDef); //add this item from this achievement to the itempool PLEAAASE
+                            AddItemFromString(achievementDef.unlockableRewardIdentifier); //add this item to the item pool
                         }
                     }
                 }
@@ -38,12 +37,11 @@ namespace AlexTheDragon
         }
 
         /// <summary>
-        /// Add an item to the item pool with an AchievementDef.
+        /// Add an item to the item pool from a string.
         /// </summary>
-        /// <param name="achievementDef">The achievementDef of the thing that unlocks the item.</param>
-        public void AddItemFromAchievement(AchievementDef achievementDef)
-        {
-            string unlockableRewardIdentifier = achievementDef.unlockableRewardIdentifier; //Takes "Items.[Item Name]" from the achievementDef
+        /// <param name="unlockableRewardIdentifier">The AchievementDef.unlockableRewardIdentifier, e.g. "Item.Bear"</param>
+        public void AddItemFromString(string unlockableRewardIdentifier)
+        {   
             string pattern = @"\w+\."; //this just means "[infinite letters until]."
             bool equipment = false;
             unlockableRewardIdentifier = Regex.Replace(unlockableRewardIdentifier, pattern, ""); //remove "[infinite letters until]." so we have the itemname remaining
@@ -64,30 +62,6 @@ namespace AlexTheDragon
                 Run.instance.availableItems.Add(ItemCatalog.FindItemIndex(unlockableRewardIdentifier)); //Add the item from this string into the available items
             }
             Run.instance.BuildDropTable(); //Makes it so that everything we added actually gets put into the game pool so we can get it on the next items, you can see it that old items do not have it with command, but hopefully that won't matter :]
-            UpdateDroppedCommandDroplets();
-        }
-        /// <summary>
-        /// Add an item to the item pool, but uses a string instead of AchievementDefs.
-        /// </summary>
-        /// <param name="unlockableRewardIdentifier">The unlockableRewardIndentifier, e.g. "Item.Bear"</param>
-        public void AddItemFromString(string unlockableRewardIdentifier)
-        {
-            string pattern = @"\w+\.";
-            unlockableRewardIdentifier = Regex.Replace(unlockableRewardIdentifier, pattern, "");
-            foreach (EquipmentIndex i in EquipmentCatalog.equipmentList)
-            {
-                EquipmentDef EqDef = EquipmentCatalog.GetEquipmentDef(i);
-                string equipmentString = EqDef.name;
-                if (unlockableRewardIdentifier == equipmentString)
-                {
-                    Run.instance.availableEquipment.Add(EquipmentCatalog.FindEquipmentIndex(unlockableRewardIdentifier));
-                }
-                else //items
-                {
-                    Run.instance.availableItems.Add(ItemCatalog.FindItemIndex(unlockableRewardIdentifier));
-                }
-            }
-            Run.instance.BuildDropTable();
             UpdateDroppedCommandDroplets();
         }
 
